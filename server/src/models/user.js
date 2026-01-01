@@ -14,8 +14,15 @@ const membershipSchema = new mongoose.Schema({
 const userSchema = new mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     name: String,
-    email: String,
-    passwordHash: String,
+    email: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    passwordHash: {
+        type: String,
+        required: true
+    },
     teams: { // key: teamId, value: membership details
         type: Map,
         of: membershipSchema
