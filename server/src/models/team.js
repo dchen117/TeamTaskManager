@@ -1,4 +1,4 @@
-const mongoose = import('mongoose');
+import mongoose from 'mongoose';
 const teamSchema = new mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     name: String,

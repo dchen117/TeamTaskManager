@@ -1,9 +1,10 @@
-const mongoose = require("mongoose");
-const express = require("express");
-const cors = require("cors");
+import mongoose from "mongoose";
+import express from "express";
+import cors from "cors";
+import authRoute from "./routes/auth.js";
 
 /* Remove after deployment */
-const dotenv = require("dotenv");
+import dotenv from "dotenv";
 dotenv.config({ path: "./config/.env" });
 /* ----------------------- */
 
@@ -11,6 +12,7 @@ const app = express();
 app.use(cors());
 const port = 5000;
 
+app.post("/api/auth", authRoute);
 app.get("/", (req, res) => {
   res.send("Hello, World!");
 });

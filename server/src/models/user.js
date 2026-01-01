@@ -1,4 +1,4 @@
-const mongoose = import('mongoose');
+import mongoose from 'mongoose';
 const membershipSchema = new mongoose.Schema({
     team: {
         type: mongoose.Schema.Types.ObjectId,
