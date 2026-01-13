@@ -3,13 +3,13 @@ import express from "express";
 import cors from "cors";
 import authRoute from "./routes/auth.js";
 
-/* Remove after deployment */
+/* TODO: Remove after deployment */
 import dotenv from "dotenv";
 dotenv.config({ path: "./config/.env" });
-/* ----------------------- */
+/* ----------------------------- */
 
 const app = express();
-app.use(cors());
+app.use(cors()); // TODO: Configure CORS properly before deployment
 const port = 5000;
 
 app.post("/api/auth", authRoute);

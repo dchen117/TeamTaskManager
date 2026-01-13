@@ -5,7 +5,7 @@ const membershipSchema = new mongoose.Schema({
         ref: 'Team',
         required: true
     },
-    role: {
+    role: { // 'admin', 'member', 'viewer'
         type: String,
         required: true
     }
@@ -25,9 +25,10 @@ const userSchema = new mongoose.Schema({
     },
     teams: { // key: teamId, value: membership details
         type: Map,
-        of: membershipSchema
+        of: membershipSchema,
     },
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
+    refreshToken: String
 });
 
 export default mongoose.model('User', userSchema);
