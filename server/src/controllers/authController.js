@@ -34,7 +34,7 @@ function refresh(req, res) {
     });
 }
 
-function authenticate(req, res, next) {
+function authenticate(req, res, next) { // Middleware to authenticate access tokens
   const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.split(" ")[1];
 
