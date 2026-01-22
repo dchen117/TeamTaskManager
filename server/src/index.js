@@ -1,18 +1,28 @@
 import mongoose from "mongoose";
 import express from "express";
 import cors from "cors";
-import authRoute from "./routes/auth.js";
+import authRoute from "./routes/authRoute.js";
+import path from "path";
+import cookieParser from "cookie-parser";
 
 /* TODO: Remove after deployment */
 import dotenv from "dotenv";
-dotenv.config({ path: "./config/.env" });
+dotenv.config({ path: path.resolve(import.meta.dirname, "config/.env") });
 /* ----------------------------- */
 
 const app = express();
-app.use(cors()); // TODO: Configure CORS properly before deployment
+const corsOptions = { // TODO: Configure CORS properly before deployment
+  origin: true,
+  credentials: true,
+};
+// app.options('*', cors(corsOptions));
+app.use(cors(corsOptions)); 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 const port = 5000;
 
-app.post("/api/auth", authRoute);
+app.use("/api/auth", authRoute);
 app.get("/", (req, res) => {
   res.send("Hello, World!");
 });

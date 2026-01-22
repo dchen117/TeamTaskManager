@@ -1,11 +1,11 @@
 import User from '../models/user.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import cookieParser from 'cookie-parser';
+import path from 'path';
 
 /* TODO: Remove after deployment */
 import dotenv from "dotenv";
-dotenv.config({ path: "../config/.env" });
+dotenv.config({ path: path.resolve(import.meta.dirname, "../config/.env") });
 /* ----------------------------- */
 
 function generateRefreshToken(user) {
