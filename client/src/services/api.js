@@ -6,6 +6,10 @@ const api = axios.create({
 });
 
 let accessToken = null;
+export const setAccessToken = (token) => {
+  accessToken = token;
+};
+
 api.interceptors.request.use(config => {
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`; 

@@ -1,20 +1,20 @@
-import api from './api';
+import api, {setAccessToken} from './api';
 
 async function loginUser(email, password) {
-  const res = await api.post('/auth/login', { email, password });
-  if (res.status === 401) {
-    throw new Error('Invalid email or password');
+  try {
+    const res = await api.post('/auth/login', { email, password });
+    const accessToken = res.data.accessToken;
+    setAccessToken(accessToken);
+  } catch (error) {
+    throw new Error(error.response.data.error);
   }
-  const accessToken = res.data.accessToken;
-  return accessToken;
 }
 
 async function registerUser(username, email, password) {
-  const res = await api.post('/auth/register', { username, email, password });
-  if (res.status === 400) {
-    throw new Error('Email already in use');
-  } else if (res.status === 500) {
-    throw new Error('Server error during registration: ' + res.data.error);
+  try {
+    await api.post('/auth/register', { username, email, password });
+  } catch (error) {
+    throw new Error(error.response.data.error);
   }
 }
 
