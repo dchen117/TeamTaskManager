@@ -47,12 +47,7 @@ function authenticate(req, res, next) { // Middleware to authenticate access tok
   });
 }
 
-async function login(req, res) {
-  const { email, password } = req.body;
-  const user = await User.findOne({ email });
-  if (!user || !bcrypt.compareSync(password, user.passwordHash)) {
-    return res.status(401).json({ error: 'Invalid email or password' });
-  }
+async function assignTokens(user, res) {
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);
   user.refreshToken = refreshToken;
@@ -66,12 +61,21 @@ async function login(req, res) {
   res.json({ accessToken });
 }
 
+async function login(req, res) {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
+  if (!user || !bcrypt.compareSync(password, user.passwordHash)) {
+    return res.status(401).json({ error: 'Invalid email or password' });
+  }
+  await assignTokens(user, res);
+}
+
 function register(req, res) {
   const { name, email, password } = req.body;
   const passwordHash = bcrypt.hashSync(password, 10);
-  User.create({ name, email, passwordHash: passwordHash })
+  User.create({ name, email, passwordHash })
     .then(user => {
-      res.status(201).json({ message: 'User registered successfully', user });
+      assignTokens(user, res);
     })
     .catch(error => {
       if (error.code === 11000) {

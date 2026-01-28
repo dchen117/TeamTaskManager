@@ -10,9 +10,9 @@ async function loginUser(email, password) {
   }
 }
 
-async function registerUser(username, email, password) {
+async function registerUser(name, email, password) {
   try {
-    await api.post('/auth/register', { username, email, password });
+    await api.post('/auth/register', { name, email, password });
   } catch (error) {
     throw new Error(error.response.data.error);
   }
