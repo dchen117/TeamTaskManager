@@ -9,11 +9,11 @@ dotenv.config({ path: path.resolve(import.meta.dirname, "../config/.env") });
 /* ----------------------------- */
 
 function generateRefreshToken(user) {
-  return jwt.sign({ sub: user._id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
+  return jwt.sign({ userId: user._id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
 }
 
 function generateAccessToken(user) {
-  return jwt.sign({ sub: user._id }, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' });
+  return jwt.sign({ userId: user._id }, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' });
 }
 
 function refresh(req, res) {
@@ -63,6 +63,9 @@ async function assignTokens(user, res) {
 
 async function login(req, res) {
   const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password are required' });
+  }
   const user = await User.findOne({ email });
   if (!user || !bcrypt.compareSync(password, user.passwordHash)) {
     return res.status(401).json({ error: 'Invalid email or password' });
@@ -72,6 +75,9 @@ async function login(req, res) {
 
 function register(req, res) {
   const { name, email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password are required' });
+  }
   const passwordHash = bcrypt.hashSync(password, 10);
   User.create({ name, email, passwordHash })
     .then(user => {
