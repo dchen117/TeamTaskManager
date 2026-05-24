@@ -19,7 +19,7 @@ api.interceptors.request.use(config => {
 
 api.interceptors.response.use(res => res, async err => {
   const originalRequest = err.config;
-  if (err.response.status === 403 && !originalRequest._retry) {
+  if (err.response?.status === 403 && !originalRequest._retry) {
     originalRequest._retry = true;
     const res = await api.post('/auth/refresh-token');
     accessToken = res.data.accessToken;

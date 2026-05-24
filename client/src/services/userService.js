@@ -6,7 +6,8 @@ async function loginUser(email, password) {
     const accessToken = res.data.accessToken;
     setAccessToken(accessToken);
   } catch (error) {
-    throw new Error(error.response.data.error);
+    const message = error.response?.data?.error || error.message || 'Something went wrong';
+    throw new Error(message);
   }
 }
 
@@ -14,7 +15,8 @@ async function registerUser(name, email, password) {
   try {
     await api.post('/auth/register', { name, email, password });
   } catch (error) {
-    throw new Error(error.response.data.error);
+    const message = error.response?.data?.error || error.message || 'Something went wrong';
+    throw new Error(message);
   }
 }
 
