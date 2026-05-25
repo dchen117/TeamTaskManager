@@ -103,4 +103,24 @@ async function logout(req, res) {
   res.json({ message: 'Logged out successfully' });
 }
 
-export { login, register, logout, refresh, authenticate };
+function requireRole(Role) {
+  return (req, res, next) => {
+    const userRoleLevel = ROLES[req.user.role]
+    const requiredLevel = ROLES[Role]
+
+    if (userRoleLevel < requiredLevel) {
+      return res.status(403).json({ message: "Forbidden" })
+    }
+
+    next()
+  }
+}
+
+const ROLES = {
+  viewer: 1, // can only view content
+  editor: 2, // can view and edit content
+  admin: 3, // can view, edit, and manage users (except owners)
+  owner: 4 // has full control, including managing admins and deleting workspace
+}
+
+export { login, register, logout, refresh, authenticate, requireRole, ROLES };
