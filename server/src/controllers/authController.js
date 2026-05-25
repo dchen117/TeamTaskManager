@@ -25,7 +25,7 @@ function refresh(req, res) {
     async (err, decoded) => {
       if (!err) {
         const user = await User.findById(decoded.id);
-        if (user && user.refreshToken === refreshToken) {
+        if (user && bcrypt.compareSync(refreshToken, user.refreshTokenHash)) {
           const accessToken = generateAccessToken(user);
           return res.json({ accessToken });
         }
@@ -50,7 +50,7 @@ function authenticate(req, res, next) { // Middleware to authenticate access tok
 async function assignTokens(user, res) {
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);
-  user.refreshToken = refreshToken;
+  user.refreshTokenHash = bcrypt.hashSync(refreshToken, 10);
   await user.save();
   res.cookie('jwt', refreshToken, {
     httpOnly: true,
@@ -74,18 +74,18 @@ async function login(req, res) {
 }
 
 function register(req, res) {
-  const { name, email, password } = req.body;
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Email and password are required' });
+  const { username, email, password } = req.body;
+  if (!username || !email || !password) {
+    return res.status(400).json({ error: 'Username, email, and password are required' });
   }
   const passwordHash = bcrypt.hashSync(password, 10);
-  User.create({ name, email, passwordHash })
+  User.create({ username, email, passwordHash })
     .then(user => {
       assignTokens(user, res);
     })
     .catch(error => {
       if (error.code === 11000) {
-        return res.status(400).json({ error: 'Email already in use' });
+        return res.status(400).json({ error: 'Username or email already in use' });
       }
       res.status(500).json({ error: error.message });
     });
