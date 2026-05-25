@@ -1,6 +1,11 @@
 import mongoose from 'mongoose';
 const userSchema = new mongoose.Schema({
-    displayName: String,
+    displayName: { 
+        type: String,
+        default: function() {
+            return this.username;
+        } 
+    },
     username: {
         type: String,
         required: true,

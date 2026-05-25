@@ -4,7 +4,7 @@ const workspaceMemberSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     role: {
         type: String,
-        enum: ['owner', 'admin', 'member'],
+        enum: ['owner', 'admin', 'editor', 'viewer'],
         required: true
     },
     joinedAt: { type: Date, default: Date.now }
