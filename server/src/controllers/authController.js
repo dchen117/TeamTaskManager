@@ -74,12 +74,12 @@ async function login(req, res) {
 }
 
 function register(req, res) {
-  const { username, email, password } = req.body;
+  const { displayname, username, email, password } = req.body;
   if (!username || !email || !password) {
     return res.status(400).json({ error: 'Username, email, and password are required' });
   }
   const passwordHash = bcrypt.hashSync(password, 10);
-  User.create({ username, email, passwordHash })
+  User.create({ displayname: displayname || username, username, email, passwordHash })
     .then(user => {
       assignTokens(user, res);
     })
