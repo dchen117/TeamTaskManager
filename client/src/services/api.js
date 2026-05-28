@@ -5,8 +5,9 @@ const api = axios.create({
   withCredentials: true,
 });
 
-let accessToken = null;
+let accessToken = localStorage.getItem("accessToken");
 export const setAccessToken = (token) => {
+  localStorage.setItem("accessToken", token);
   accessToken = token;
 };
 
@@ -20,10 +21,16 @@ api.interceptors.request.use(config => {
 api.interceptors.response.use(res => res, async err => {
   const originalRequest = err.config;
   if (err.response?.status === 403 && !originalRequest._retry) {
-    originalRequest._retry = true;
-    const res = await api.post('/auth/refresh-token');
-    accessToken = res.data.accessToken;
-    return api(originalRequest);
+    try {
+      originalRequest._retry = true;
+      const res = await api.post('/auth/refresh-token');
+      setAccessToken(res.data.accessToken);
+      originalRequest.headers.Authorization = `Bearer ${res.data.accessToken}`;
+      return api(originalRequest);
+    } catch (error) {
+      setAccessToken(null);
+      return Promise.reject(error);
+    }
   }
   return Promise.reject(err);
 });
