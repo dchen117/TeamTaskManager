@@ -1,26 +1,21 @@
 import axios from 'axios';
+import { getAccessToken, setAccessToken, notifyLogout } from './tokenService.js';
 
 const api = axios.create({
   baseURL: 'http://localhost:5000/api', // TODO: Change baseURL when deploying
   withCredentials: true,
 });
 
-let accessToken = localStorage.getItem("accessToken");
-export const setAccessToken = (token) => {
-  localStorage.setItem("accessToken", token);
-  accessToken = token;
-};
-
 api.interceptors.request.use(config => {
-  if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`; 
+  if (getAccessToken()) {
+    config.headers.Authorization = `Bearer ${getAccessToken()}`; 
   }
   return config;
 });
 
 api.interceptors.response.use(res => res, async err => {
   const originalRequest = err.config;
-  if (err.response?.status === 403 && !originalRequest._retry) {
+  if (err.response?.status === 401 && originalRequest.url !== '/auth/refresh-token' && !originalRequest._retry) {
     try {
       originalRequest._retry = true;
       const res = await api.post('/auth/refresh-token');
@@ -28,7 +23,7 @@ api.interceptors.response.use(res => res, async err => {
       originalRequest.headers.Authorization = `Bearer ${res.data.accessToken}`;
       return api(originalRequest);
     } catch (error) {
-      setAccessToken(null);
+      notifyLogout();
       return Promise.reject(error);
     }
   }
