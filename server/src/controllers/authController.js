@@ -24,13 +24,15 @@ function refresh(req, res) {
   jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET,
     async (err, decoded) => {
       if (!err) {
-        const user = await User.findById(decoded.id);
-        if (user && bcrypt.compareSync(refreshToken, user.refreshTokenHash)) {
+        const user = await User.findById(decoded.userId);
+        if (!user) {
+          return res.status(401).json({ error: 'User not found' });
+        } else if (bcrypt.compareSync(refreshToken, user.refreshTokenHash)) {
           const accessToken = generateAccessToken(user);
           return res.json({ accessToken });
         }
       }
-      res.status(403).json({ error: 'Invalid refresh token' });
+      res.status(401).json({ error: 'Invalid refresh token' });
     });
 }
 
@@ -41,7 +43,7 @@ function authenticate(req, res, next) { // Middleware to authenticate access tok
   if (!token) return res.sendStatus(401);
 
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, payload) => {
-    if (err) return res.sendStatus(403);
+    if (err) return res.sendStatus(401);
     req.userId = payload.userId;
     next();
   });
@@ -55,7 +57,7 @@ async function assignTokens(user, res) {
   res.cookie('jwt', refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'None',
+    sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
     maxAge: 7 * 24 * 60 * 60 * 1000
   });
   res.json({ accessToken });
@@ -75,8 +77,10 @@ async function login(req, res) {
 
 function register(req, res) {
   const { displayname, username, email, password } = req.body;
-  if (!username || !email || !password) {
+  if (!username || !email || !password || !confirmPassword) {
     return res.status(400).json({ error: 'Username, email, and password are required' });
+  } else if (password.length < 8) {
+    return res.status(400).json({ error: 'Password must be at least 8 characters long' });
   }
   const passwordHash = bcrypt.hashSync(password, 10);
   User.create({ displayname: displayname || username, username, email, passwordHash })
@@ -99,7 +103,11 @@ async function logout(req, res) {
   const user = await User.findOne({ refreshToken });
   user.refreshToken = null;
   user.save();
-  res.clearCookie('jwt', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'None' });
+  res.clearCookie('jwt', {
+    httpOnly: true, 
+    secure: process.env.NODE_ENV === 'production', 
+    sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax'
+  });
   res.json({ message: 'Logged out successfully' });
 }
 
