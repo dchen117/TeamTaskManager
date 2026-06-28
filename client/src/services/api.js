@@ -15,7 +15,7 @@ api.interceptors.request.use(config => {
 
 api.interceptors.response.use(res => res, async err => {
   const originalRequest = err.config;
-  if (err.response?.status === 401 && originalRequest.url !== '/auth/refresh-token' && !originalRequest._retry) {
+  if (err.response?.status === 401 && !originalRequest.url.startsWith('/auth') && !originalRequest._retry) {
     try {
       originalRequest._retry = true;
       const res = await api.post('/auth/refresh-token');
