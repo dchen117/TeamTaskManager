@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { useState, useContext } from "react"
-import { AuthContext } from "@/services/AuthContext.jsx"
+import { AuthContext } from "@/contexts/AuthContext.jsx"
 import { useNavigate, Link } from "react-router-dom"
 import { Spinner } from "@/components/ui/spinner"
 import {
