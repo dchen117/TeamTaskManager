@@ -39,10 +39,9 @@ function refresh(req, res) {
 function authenticate(req, res, next) { // Middleware to authenticate access tokens
   const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.split(" ")[1];
-
   if (!token) return res.sendStatus(401);
 
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, payload) => {
+  jwt.verify(token, process.env.JWT_ACCESS_SECRET, (err, payload) => {
     if (err) return res.sendStatus(401);
     req.userId = payload.userId;
     next();
@@ -77,7 +76,7 @@ async function login(req, res) {
 
 function register(req, res) {
   const { displayname, username, email, password } = req.body;
-  if (!username || !email || !password || !confirmPassword) {
+  if (!username || !email || !password) {
     return res.status(400).json({ error: 'Username, email, and password are required' });
   } else if (password.length < 8) {
     return res.status(400).json({ error: 'Password must be at least 8 characters long' });
@@ -95,13 +94,9 @@ function register(req, res) {
     });
 }
 
-async function logout(req, res) {
-  const refreshToken = req.cookies.jwt;
-  if (!refreshToken) {
-    return res.sendStatus(204);
-  }
-  const user = await User.findOne({ refreshToken });
-  user.refreshToken = null;
+async function logout(req, res) { // requires authenticate middleware
+  const user = await User.findById(req.userId);
+  user.refreshTokenHash = null;
   user.save();
   res.clearCookie('jwt', {
     httpOnly: true, 
@@ -109,6 +104,11 @@ async function logout(req, res) {
     sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax'
   });
   res.json({ message: 'Logged out successfully' });
+}
+
+async function userInfo(req, res) { // requires authenticate middleware
+  const user = await User.findById(req.userId);
+  res.json({ displayName : user.displayName, username : user.username, email : user.email })
 }
 
 function requireRole(Role) {
@@ -131,4 +131,4 @@ const ROLES = {
   owner: 4 // has full control, including managing admins and deleting workspace
 }
 
-export { login, register, logout, refresh, authenticate, requireRole, ROLES };
+export { login, register, logout, refresh, userInfo, authenticate, requireRole, ROLES };
