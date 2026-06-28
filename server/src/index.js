@@ -2,6 +2,9 @@ import mongoose from "mongoose";
 import express from "express";
 import cors from "cors";
 import authRoute from "./routes/authRoute.js";
+import workspaceRoute from "./routes/workspaceRoute.js";
+import projectRoute from "./routes/projectRoute.js";
+import taskRoute from "./routes/taskRoute.js";
 import path from "path";
 import cookieParser from "cookie-parser";
 
@@ -23,6 +26,9 @@ app.use(cookieParser());
 const port = 5000;
 
 app.use("/api/auth", authRoute);
+app.use("/api/workspaces", workspaceRoute);
+app.use("/api/projects", projectRoute);
+app.use("/api/tasks", taskRoute);
 app.get("/", (req, res) => {
   res.send("Hello, World!");
 });
