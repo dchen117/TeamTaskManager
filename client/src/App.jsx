@@ -14,8 +14,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           {/* Protected routes go here */}
           <Route path="/" element={<Navigate to="/home" replace/>} />
-          <Route path="/home" element={<HomePage />} />
-          <Route path="/home/:workspaceId" element={<HomePage />} />
+          <Route path="/home/:workspaceId?/:projectId?" element={<HomePage />} />
         </Route>
       </Routes>
     </BrowserRouter>
