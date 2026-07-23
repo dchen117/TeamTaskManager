@@ -1,4 +1,5 @@
 import api from "../services/api.js";
+import { generateKeyBetween } from "fractional-indexing";
 
 async function getProjects(workspaceId) {
   try {
@@ -10,6 +11,15 @@ async function getProjects(workspaceId) {
 }
 
 async function createProject({ workspaceId, data }) {
+  // set default statuses
+  const first = generateKeyBetween(null, null);
+  const second = generateKeyBetween(first, null);
+  const third = generateKeyBetween(second, null);
+  data.statuses = [
+    { name: "To Do", order: first },
+    { name: "In Progress", order: second },
+    { name: "Done", order: third}
+  ]
   try {
     const res = await api.post(
       `/workspaces/${workspaceId}/create-project`,
