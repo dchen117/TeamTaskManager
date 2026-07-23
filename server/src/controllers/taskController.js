@@ -1,11 +1,20 @@
 import Task from '../models/task.js';
 
+function getTasks(req, res) {
+    const { projectId } = req.params;
+    Task.find({ project: projectId })
+        .sort({ order: 1 })
+        .then(tasks => res.status(200).json(tasks))
+        .catch(error => res.status(500).json({ error: error.message }));
+}
+
 function createTask(req, res) {
-    const { title, description, status, projectId } = req.body;
-    if (!title || !projectId) {
-        return res.status(400).json({ error: 'Title and projectId are required' });
+    const { title, description, statusId, order } = req.body;
+    const { projectId } = req.params;
+    if (!title || !projectId || !statusId || !order) {
+        return res.status(400).json({ error: 'Title, projectId, statusId, and order are required' });
     }
-    Task.create({ title, description, status, project: projectId })
+    Task.create({ title, description, statusId, project: projectId, order })
         .then(task => res.status(201).json(task))
         .catch(error => res.status(500).json({ error: error.message }));
 }
@@ -22,8 +31,8 @@ function assignTask(req, res) {
 
 function updateTask(req, res) {
     const { taskId } = req.params;
-    const { title, description, status } = req.body;
-    Task.findByIdAndUpdate(taskId, { title, description, status }, { new: true })
+    const { title, description, statusId, order } = req.body;
+    Task.findByIdAndUpdate(taskId, { title, description, statusId, order }, { new: true })
         .then(task => res.json(task))
         .catch(error => res.status(500).json({ error: error.message }));
 }
@@ -35,4 +44,4 @@ function deleteTask(req, res) {
         .catch(error => res.status(500).json({ error: error.message }));
 }
 
-export { createTask, assignTask, updateTask, deleteTask };
+export { getTasks, createTask, assignTask, updateTask, deleteTask };
