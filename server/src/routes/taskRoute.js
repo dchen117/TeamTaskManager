@@ -6,8 +6,8 @@ const router = express.Router({ mergeParams: true });
 router.use(authenticate); // Protect all task routes
 
 // Editor routes
-router.use(requireRole(ROLES.editor));
+// router.use(requireRole(ROLES.editor));
 router.put('/:taskId/update-task', updateTask);
-router.delete('/:taskId/delete-task/', deleteTask);
+router.delete('/:taskId/delete-task', deleteTask);
 
 export default router;
