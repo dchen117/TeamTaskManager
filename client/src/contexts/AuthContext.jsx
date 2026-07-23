@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect, useCallback } from "react";
 import api from "../services/api.js";
 import { registerLogoutHandler, setAccessToken, getAccessToken } from "../services/tokenService.js";
+import { Spinner } from "@/components/ui/spinner.jsx"
 
 const AuthContext = createContext();
 
@@ -83,7 +84,7 @@ function AuthProvider({ children }) {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>; // You can replace this with a spinner or skeleton screen
+    return <div className={"flex h-screen justify-center items-center"}><Spinner className={"size-8"}/></div>;
   }
 
   return (
