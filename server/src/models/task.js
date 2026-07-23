@@ -7,10 +7,11 @@ const taskSchema = new mongoose.Schema({
         required: true
     },
     description: String,
-    status: String,
+    statusId: {type: mongoose.Schema.Types.String, ref: 'Project.statuses', required: true},
     dueDate: Date,
     assignedTo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
+    order: { type: String, required: true }
 });
 
 export default mongoose.model('Task', taskSchema);
