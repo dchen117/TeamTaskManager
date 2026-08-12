@@ -2,6 +2,7 @@ import User from '../models/user.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import path from 'path';
+import WorkspaceMember from '../models/workspaceMember.js';
 
 /* TODO: Remove after deployment */
 import dotenv from "dotenv";
@@ -48,6 +49,16 @@ function authenticate(req, res, next) { // Middleware to authenticate access tok
   });
 }
 
+async function checkWorkspaceAccess(req, res, next) {
+  const userId = req.userId;
+  const { workspaceId } = req.params;
+  const membership = await WorkspaceMember.findOne({ user: userId, workspace: workspaceId });
+  if (!membership) {
+    return res.status(403).json({ error: 'Access denied' });
+  }
+  next();
+}
+
 async function assignTokens(user, res) {
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);
@@ -79,7 +90,7 @@ function register(req, res) {
   if (!username || !email || !password) {
     return res.status(400).json({ error: 'Username, email, and password are required' });
   } else if (password.length < 8) {
-    return res.status(400).json({ error: 'Password must be at least 8 characters long' });
+    return res.status(400).json({ error: 'Password must be at least 8 characters long', errorCode: 'PASSWORD_TOO_SHORT' });
   }
   const passwordHash = bcrypt.hashSync(password, 10);
   User.create({ displayname: displayname || username, username, email, passwordHash })
@@ -88,7 +99,7 @@ function register(req, res) {
     })
     .catch(error => {
       if (error.code === 11000) {
-        return res.status(400).json({ error: 'Username or email already in use' });
+        return res.status(400).json({ error: 'Username or email already in use', errorCode: 'USER_EXISTS' });
       }
       res.status(500).json({ error: error.message });
     });
@@ -131,4 +142,4 @@ const ROLES = {
   owner: 4 // has full control, including managing admins and deleting workspace
 }
 
-export { login, register, logout, refresh, userInfo, authenticate, requireRole, ROLES };
+export { login, register, logout, refresh, userInfo, authenticate, checkWorkspaceAccess, requireRole, ROLES };
