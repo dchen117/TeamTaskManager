@@ -15,6 +15,7 @@ import {
   FieldDescription,
   FieldGroup,
   FieldLabel,
+  FieldError,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 
@@ -30,17 +31,21 @@ export function SignupForm({
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [errorCode, setErrorCode] = useState(null);
 
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setErrorCode(null);
     try {
       await register(displayname, username, email, password, confirmPassword);
       console.log('Registration successful');
-      navigate('/home');
+      navigate('/workspaces');
     } catch (err) {
+      console.log(err.errorCode);
       setError(err.message);
+      setErrorCode(err.errorCode);
     } finally {
       setLoading(false);
     }
@@ -63,11 +68,11 @@ export function SignupForm({
             </Field>
             <Field>
               <FieldLabel htmlFor="username">Username</FieldLabel>
-              <Input id ="username" type="text" placeholder="johndoe" onChange={(e) => setUsername(e.target.value)} required />
+              <Input id ="username" type="text" placeholder="johndoe" onChange={(e) => setUsername(e.target.value)} required aria-invalid={errorCode === 'USER_EXISTS'} />
             </Field>
             <Field>
               <FieldLabel htmlFor="email">Email</FieldLabel>
-              <Input id="email" type="email" placeholder="m@example.com" onChange={(e) => setEmail(e.target.value)} required />
+              <Input id="email" type="email" placeholder="m@example.com" onChange={(e) => setEmail(e.target.value)} required aria-invalid={errorCode === 'USER_EXISTS'} />
               <FieldDescription>
                 We&apos;ll use this to contact you. We will not share your email
                 with anyone else.
@@ -75,7 +80,7 @@ export function SignupForm({
             </Field>
             <Field>
               <FieldLabel htmlFor="password">Password</FieldLabel>
-              <Input id="password" type="password" onChange={(e) => setPassword(e.target.value)} required />
+              <Input id="password" type="password" onChange={(e) => setPassword(e.target.value)} required aria-invalid={errorCode === 'PASSWORD_TOO_SHORT' || errorCode === 'PASSWORDS_DO_NOT_MATCH'} />
               <FieldDescription>
                 Must be at least 8 characters long.
               </FieldDescription>
@@ -84,17 +89,18 @@ export function SignupForm({
               <FieldLabel htmlFor="confirm-password">
                 Confirm Password
               </FieldLabel>
-              <Input id="confirm-password" type="password" onChange={(e) => setConfirmPassword(e.target.value)} required />
+              <Input id="confirm-password" type="password" onChange={(e) => setConfirmPassword(e.target.value)} required aria-invalid={errorCode === 'PASSWORDS_DO_NOT_MATCH'} />
               <FieldDescription>Please confirm your password.</FieldDescription>
+              <FieldError>{error}</FieldError>
             </Field>
             <FieldGroup>
-              {error && (
+              {/* {error && (
                 <Field>
                   <FieldDescription className="text-red-500 text-center">
                     {error}
                   </FieldDescription>
                 </Field>
-              )}
+              )} */}
               <Field>
                 <Button type="submit" disabled={loading}>
                   {loading ? (<><Spinner data-icon="inline-start"/> Creating Account...</>) : 'Create Account'}

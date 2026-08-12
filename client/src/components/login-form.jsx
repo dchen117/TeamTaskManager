@@ -17,8 +17,11 @@ import {
   FieldDescription,
   FieldGroup,
   FieldLabel,
+  FieldError,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { useQueryClient } from "@tanstack/react-query"
+import { getWorkspaces } from "@/services/workspaces"
 
 export function LoginForm({
   className,
@@ -30,6 +33,7 @@ export function LoginForm({
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const queryClient = useQueryClient();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -37,7 +41,12 @@ export function LoginForm({
     setError(null);
     try {
       await login(email, password);
-      navigate('/home');
+      // fetch the workspaces and projects before navigating to home page
+      await queryClient.fetchQuery({
+        queryKey: ["workspaces"],
+        queryFn: () => getWorkspaces(),
+      });      
+      navigate('/workspaces');
     }
     catch (error) {
       setError(error.message);
@@ -60,27 +69,25 @@ export function LoginForm({
           <form onSubmit={handleSubmit}>
             <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input id="email" type="email" placeholder="m@example.com" onChange={(e) => setEmail(e.target.value)} required />
+                <FieldLabel htmlFor="email" className={error ? "text-red-400" : ""}>
+                  Email
+                </FieldLabel>
+                <Input id="email" type="email" placeholder="m@example.com" onChange={(e) => setEmail(e.target.value)} required aria-invalid={!!error} />
               </Field>
               <Field>
                 <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
+                  <FieldLabel htmlFor="password" className={error ? "text-red-400" : ""}>
+                    Password
+                  </FieldLabel>
                   <a
-                    href="#"
+                    href="#"  
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
                     Forgot your password?
                   </a>
                 </div>
-                <Input id="password" type="password" onChange={(e) => setPassword(e.target.value)} required />
+                <Input id="password" type="password" onChange={(e) => setPassword(e.target.value)} required aria-invalid={!!error} />
+                <FieldError>{error}</FieldError>
               </Field>
-              {error && (
-                <Field>
-                  <FieldDescription className="text-red-500 text-center">
-                    {error}
-                  </FieldDescription>
-                </Field>
-              )}
               <Field>
                 <Button type="submit" disabled={loading}>
                   {loading ? (<><Spinner data-icon="inline-start" className="text-black"  /> Logging in...</>) : 'Login'}
