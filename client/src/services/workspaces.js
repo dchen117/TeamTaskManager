@@ -20,4 +20,21 @@ async function createWorkspace(workspaceData) {
   }
 }
 
-export { getWorkspaces, createWorkspace };
+async function updateWorkspace({workspaceId, data}) {
+  try {
+    const res = await api.put(`/workspaces/${workspaceId}/update-workspace`, data);
+    return res.data;
+  } catch (error) {
+    console.error("Error updating workspace:", error);
+  }
+}
+
+async function deleteWorkspace(workspaceId) {
+  try {
+    const res = await api.delete(`/workspaces/${workspaceId}/delete-workspace`);
+    return res.data;
+  } catch (error) {
+    console.error("Error deleting workspace:", error);
+  }
+}
+export { getWorkspaces, createWorkspace, updateWorkspace, deleteWorkspace };

@@ -15,14 +15,6 @@ async function createTask({ projectId, data }) {
   return res.data;
 }
 
-async function updateStatus({ projectId, statusId, data }) {
-  const res = await api.put(
-    `/projects/${projectId}/${statusId}/update-status`,
-    data,
-  );
-  return res;
-}
-
 async function updateTask({ taskId, data }) {
   const res = await api.put(
     `/tasks/${taskId}/update-task`,
@@ -31,4 +23,11 @@ async function updateTask({ taskId, data }) {
   return res.data;
 }
 
-export { getTasks, createTask, updateTask, updateStatus };
+async function deleteTask(taskId) {
+  const res = await api.delete(
+    `/tasks/${taskId}/delete-task`
+  )
+  return res.data;
+}
+
+export { getTasks, createTask, updateTask, deleteTask };

@@ -1,5 +1,4 @@
 import api from "../services/api.js";
-import { generateKeyBetween } from "fractional-indexing";
 
 async function getProjects(workspaceId) {
   try {
@@ -11,15 +10,6 @@ async function getProjects(workspaceId) {
 }
 
 async function createProject({ workspaceId, data }) {
-  // set default statuses
-  const first = generateKeyBetween(null, null);
-  const second = generateKeyBetween(first, null);
-  const third = generateKeyBetween(second, null);
-  data.statuses = [
-    { name: "To Do", order: first },
-    { name: "In Progress", order: second },
-    { name: "Done", order: third}
-  ]
   try {
     const res = await api.post(
       `/workspaces/${workspaceId}/create-project`,
@@ -27,8 +17,31 @@ async function createProject({ workspaceId, data }) {
     );
     return res.data;
   } catch (error) {
-    console.error("Error creating project:", error);
+    console.error("Error creating project: ", error);
   }
 }
 
-export { getProjects, createProject };
+async function deleteProject(projectId) {
+  try {
+    const res = await api.delete(
+      `/projects/${projectId}/delete-project`
+    );
+    return res.data;
+  } catch (error) {
+    console.error("Error deleting project: ", error);
+  }
+}
+
+async function updateProject({ projectId, data}) {
+  try {
+    const res = await api.put(
+      `/projects/${projectId}/update-project`,
+      data
+    );
+    return res.data;
+  } catch (error) {
+    console.error("Error updating project: ", error);
+  }
+}
+
+export { getProjects, createProject, deleteProject, updateProject };
