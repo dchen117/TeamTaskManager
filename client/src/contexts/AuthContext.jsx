@@ -2,10 +2,12 @@ import { createContext, useState, useEffect, useCallback } from "react";
 import api from "../services/api.js";
 import { registerLogoutHandler, setAccessToken, getAccessToken } from "../services/tokenService.js";
 import { Spinner } from "@/components/ui/spinner.jsx"
+import { useQueryClient } from "@tanstack/react-query";
 
 const AuthContext = createContext();
 
 function AuthProvider({ children }) {
+  const queryClient = useQueryClient();
   const [isAuthenticated, setIsAuthenticated] = useState(!!getAccessToken());
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
@@ -36,13 +38,14 @@ function AuthProvider({ children }) {
   const logout = useCallback(async () => {
     try {
       await api.post('/auth/logout');
+      queryClient.clear(); // clear react-query cache on logout to prevent access to cached data
     } catch (error) {
       console.error('Error occurred while logging out:', error);
     }
     setUser(null);
     setAccessToken(null);
     setIsAuthenticated(false);
-  }, []);
+  }, [queryClient]);
   
   useEffect(() => {
     registerLogoutHandler(logout);
@@ -50,9 +53,13 @@ function AuthProvider({ children }) {
 
   async function register(displayname, username, email, password, confirmPassword) {
     if (password.length < 8) {
-      throw new Error("Password must be at least 8 characters long");
+      const error = Error("Password must be at least 8 characters long");
+      error.errorCode = 'PASSWORD_TOO_SHORT';
+      throw error;
     } else if (password !== confirmPassword) {
-      throw new Error("Passwords do not match");
+      const error = Error("Passwords do not match");
+      error.errorCode = 'PASSWORDS_DO_NOT_MATCH';
+      throw error;
     }
     try {
       const res = await api.post('/auth/register', { displayname, username, email, password });
@@ -61,8 +68,9 @@ function AuthProvider({ children }) {
       setIsAuthenticated(true);
       getUserInfo();
     } catch (error) {
-      const message = error.response?.data?.error || error.message || 'Something went wrong';
-      throw new Error(message);
+      const err = Error(error.response?.data?.error);
+      err.errorCode = error.response?.data?.errorCode;
+      throw err;
     }
   }
     
