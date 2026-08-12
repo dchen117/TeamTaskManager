@@ -12,15 +12,23 @@ import {
 import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { useState } from "react"
 import { useTasks } from "@/hooks/useTasks"
 import { useParams } from "react-router-dom"
 import { generateKeyBetween } from "fractional-indexing"
 
-export function AddTaskDialog({children, statusId, order}) {
-  const [open, setOpen] = useState(false)
+export function AddTaskDialog({children, open, onOpenChange, statusId, order}) {
   const { projectId } = useParams()
   const { createTask } = useTasks(projectId)
+  const [ internalOpen, setInternalOpen ] = useState(false)
+  const isOpen = open ? open : internalOpen
+  const setOpen = (nextOpen) => {
+    if (!open) {
+      setInternalOpen(nextOpen)
+    }
+    onOpenChange?.(nextOpen)
+  }
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -31,8 +39,9 @@ export function AddTaskDialog({children, statusId, order}) {
     createTask({ projectId, data })
     setOpen(false)
   }
+  
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={isOpen} onOpenChange={setOpen}>
         {children}
       <DialogContent className="sm:max-w-sm" onCloseAutoFocus={e => e.preventDefault()}>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -45,7 +54,7 @@ export function AddTaskDialog({children, statusId, order}) {
           <FieldGroup>
             <Field>
               <Label htmlFor="title-1">Title</Label>
-              <Input id="title-1" name="title" defaultValue="Untitled" />
+              <Input id="title-1" name="title" />
             </Field>
             <Field>
               <Label htmlFor="description-1">
@@ -54,7 +63,7 @@ export function AddTaskDialog({children, statusId, order}) {
                   (Optional)
                 </span>
               </Label>
-              <Input id="description-1" name="description" />
+              <Textarea id="description-1" name="description" />
             </Field>
           </FieldGroup>
           <DialogFooter>
