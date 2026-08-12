@@ -12,39 +12,61 @@ import {
 import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useState } from "react"
+import { Textarea } from "@/components/ui/textarea"
 import { useProjects } from "@/hooks/useProjects"
-import { useParams } from "react-router-dom"
+import { useParams, useNavigate } from "react-router-dom"
+import { useState } from "react"
 
-export function AddProjectDialog({children}) {
-  const [open, setOpen] = useState(false)
+export function AddProjectDialog({children, open, onOpenChange, project}) {
   const { workspaceId } = useParams()
-  const { createProject } = useProjects(workspaceId)
+  const { createProject, updateProject } = useProjects(workspaceId)
+  const navigate = useNavigate();
+  const [ internalOpen, setInternalOpen ] = useState(false)
+  const isOpen = open ? open : internalOpen
+  const setOpen = (nextOpen) => {
+    if (!open) {
+      setInternalOpen(nextOpen)
+    }
+    onOpenChange?.(nextOpen)
+  }
 
-  async function handleSubmit(e) {
+  async function handleAdd(e) {
     e.preventDefault()
     const formData = new FormData(e.target)
     const data = Object.fromEntries(formData.entries())
-    createProject({ workspaceId, data })
+    createProject({ workspaceId, data }, {
+      onSuccess: data => {
+        navigate(`/home/${workspaceId}/${data.project._id}`)
+      }
+    })
     setOpen(false)
   }
+
+  async function handleEdit(e) {
+    e.preventDefault()
+    const formData = new FormData(e.target)
+    const data = Object.fromEntries(formData.entries())
+    updateProject({ projectId: project._id, data })
+    setOpen(false)
+  }
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={isOpen} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
       <DialogContent className="sm:max-w-sm">
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={project ? handleEdit : handleAdd} className="space-y-4">
           <DialogHeader>
-            <DialogTitle>Add Project</DialogTitle>
+            <DialogTitle>{project ? 'Edit Project' : 'Add Project'}</DialogTitle>
             <DialogDescription>
-              Create a new project for your workspace.
+              {project ? 'Make changes to your project here.' : 'Create a new project for your workspace.'}
             </DialogDescription>
           </DialogHeader>
           <FieldGroup>
             <Field>
               <Label htmlFor="name-1">Project Name</Label>
-              <Input id="name-1" name="name" defaultValue="My Project" />
+              <Input id="name-1" name="name" defaultValue={project ? project.name : "My Project"} required/>
             </Field>
             <Field>
               <Label htmlFor="description-1">
@@ -53,14 +75,14 @@ export function AddProjectDialog({children}) {
                   (Optional)
                 </span>
               </Label>
-              <Input id="description-1" name="description" />
+              <Textarea id="description-1" name="description" defaultValue={project?.description}/>
             </Field>
           </FieldGroup>
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
-            <Button type="submit">Create</Button>
+            <Button type="submit">{project ? "Save Changes" : "Create"}</Button>
           </DialogFooter>
         </form>
       </DialogContent>
