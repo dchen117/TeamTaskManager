@@ -24,7 +24,7 @@ function assignTask(req, res) {
     if (!taskId || !userId) {
         return res.status(400).json({ error: 'taskId and userId are required' });
     }
-    Task.findByIdAndUpdate(taskId, { $push: { assignedTo: userId } }, { new: true })
+    Task.findByIdAndUpdate(taskId, { $push: { assignedTo: userId } }, { returnDocument: 'after' })
         .then(task => res.json(task))
         .catch(error => res.status(500).json({ error: error.message }));
 }
@@ -32,7 +32,7 @@ function assignTask(req, res) {
 function updateTask(req, res) {
     const { taskId } = req.params;
     const { title, description, statusId, order } = req.body;
-    Task.findByIdAndUpdate(taskId, { title, description, statusId, order }, { new: true })
+    Task.findByIdAndUpdate(taskId, { title, description, statusId, order }, { returnDocument: 'after' })
         .then(task => res.json(task))
         .catch(error => res.status(500).json({ error: error.message }));
 }
