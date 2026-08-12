@@ -17,35 +17,45 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { MoreHorizontalIcon, FolderIcon, ArrowRightIcon, Trash2Icon } from "lucide-react"
+import { MoreHorizontalIcon, ArrowRightIcon, Trash2Icon, Edit2Icon } from "lucide-react"
 import { IconCirclePlusFilled, IconMail } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { useProjects } from "@/hooks/useProjects"
-import { useParams } from "react-router-dom"
+import { useParams, NavLink } from "react-router-dom"
 import { IconFolder } from "@tabler/icons-react"
 import { AddProjectDialog } from "./add-project-dialog"
+import { useState } from "react"
+import { DeleteDialog } from "./delete-dialog"
 
 export function NavProjects() {
   const { isMobile } = useSidebar()
-  const { workspaceId } = useParams()
-  const { data: projects } = useProjects(workspaceId)
-  console.log("projects", projects)
+  const { workspaceId, projectId } = useParams()
+  const { data: projects, deleteProject } = useProjects(workspaceId)
+  const [ deleteProjectDialogOpen, setDeleteProjectDialogOpen ] = useState(false);
+  const [ addProjectDialogOpen, setAddProjectDialogOpen ] = useState(false);  
+  const [ editProjectDialogOpen, setEditProjectDialogOpen ] = useState(false);
+  const [ selectedProject, setSelectedProject ] = useState(null);
+
+  async function handleDelete(e) {
+    e.preventDefault();
+    deleteProject(selectedProject._id);
+    setDeleteProjectDialogOpen(false);
+    setSelectedProject(null);
+  }
 
   return (
-    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupContent className="flex flex-col gap-2">
-        <SidebarGroupLabel>Projects</SidebarGroupLabel>
+    <>
+      <SidebarGroup>
         <SidebarMenu>
           <SidebarMenuItem className="flex items-center gap-2">
-            <AddProjectDialog>
-              <SidebarMenuButton
-                tooltip="Quick Create"
-                className="min-w-8 bg-primary text-primary-foreground duration-200 ease-linear hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground"
-              >
-                <IconCirclePlusFilled />
-                <span>Create Project</span>
-              </SidebarMenuButton>
-            </AddProjectDialog>
+            <SidebarMenuButton
+              tooltip="Create Project"
+              className="min-w-8 bg-primary text-primary-foreground duration-200 ease-linear hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground"
+              onClick={() => setAddProjectDialogOpen(true)}
+            >
+              <IconCirclePlusFilled />
+              <span>Create Project</span>
+            </SidebarMenuButton>
             <Button
               size="icon"
               className="size-8 group-data-[collapsible=icon]:opacity-0"
@@ -56,14 +66,17 @@ export function NavProjects() {
             </Button>
           </SidebarMenuItem>
         </SidebarMenu>
-        <SidebarMenu>
-          {projects && projects.map((item) => (
-            <SidebarMenuItem key={item._id}>
-              <SidebarMenuButton asChild>
-                <a href={item.url}>
+      </SidebarGroup>
+      <SidebarGroup>
+        <SidebarGroupLabel>{(projects && projects.length !== 0) ? 'Projects' : 'No Projects'}</SidebarGroupLabel>
+        <SidebarMenu className="group-data-[collapsible=icon]:hidden">
+          {projects && projects.map((project) => (
+            <SidebarMenuItem key={project._id}>
+              <SidebarMenuButton asChild isActive={project._id === projectId} className="data-[active=true]:border-l-4 data-[active=true]:border-primary rounded-none">
+                <NavLink to={`/home/${workspaceId}/${project._id}`}>
                   <IconFolder/>
-                  <span>{item.name}</span>
-                </a>
+                  <span>{project.name}</span>
+                </NavLink>
               </SidebarMenuButton>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -76,16 +89,24 @@ export function NavProjects() {
                   className="w-fit"
                   side={isMobile ? "bottom" : "right"}
                   align={isMobile ? "end" : "start"}>
-                  <DropdownMenuItem>
-                    <FolderIcon />
-                    <span>View Project</span>
+                  <DropdownMenuItem onSelect={() => {
+                    setSelectedProject(project); 
+                    setEditProjectDialogOpen(true);
+                  }}>
+                    <Edit2Icon />
+                    <span>Edit Project</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <ArrowRightIcon />
                     <span>Share Project</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem variant="destructive">
+                  <DropdownMenuItem variant="destructive" 
+                    onSelect={() => {
+                      setDeleteProjectDialogOpen(true); 
+                      setSelectedProject(project);
+                    }}
+                  >
                     <Trash2Icon />
                     <span>Delete Project</span>
                   </DropdownMenuItem>
@@ -93,14 +114,24 @@ export function NavProjects() {
               </DropdownMenu>
             </SidebarMenuItem>
           ))}
-          <SidebarMenuItem>
-            <SidebarMenuButton className="text-sidebar-foreground/70">
-              <MoreHorizontalIcon className="text-sidebar-foreground/70" />
-              <span>More</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
         </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
+      </SidebarGroup>
+      <DeleteDialog
+        open={deleteProjectDialogOpen}
+        onOpenChange={setDeleteProjectDialogOpen}
+        title='Delete Project?'
+        description={`Are you sure you want to delete "${selectedProject?.name}"?`}
+        handleSubmit={handleDelete}
+      />
+      <AddProjectDialog
+        open={addProjectDialogOpen}
+        onOpenChange={setAddProjectDialogOpen}
+      />
+      <AddProjectDialog
+        open={editProjectDialogOpen}
+        onOpenChange={setEditProjectDialogOpen}
+        project={selectedProject}
+      />
+    </>
   );
 }
