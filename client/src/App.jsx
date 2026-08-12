@@ -4,6 +4,7 @@ import LoginPage from "./pages/LoginPage.jsx";
 import RegistrationPage from "./pages/RegistrationPage.jsx";
 import ProtectedRoute from "./pages/ProtectedRoute";
 import HomePage from "./pages/HomePage";
+import WorkspacePage from "./pages/WorkspacePage.jsx";
 
 function App() {
   return (
@@ -13,7 +14,8 @@ function App() {
         <Route path="/register" element={<RegistrationPage />} />
         <Route element={<ProtectedRoute />}>
           {/* Protected routes go here */}
-          <Route path="/" element={<Navigate to="/home" replace/>} />
+          <Route path="/" element={<Navigate to="/workspaces" replace/>} />
+          <Route path="/workspaces" element={<WorkspacePage />} />
           <Route path="/home/:workspaceId?/:projectId?" element={<HomePage />} />
         </Route>
       </Routes>
