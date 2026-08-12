@@ -1,6 +1,10 @@
 import Workspace from '../models/workspace.js';
 import WorkspaceMember from '../models/workspaceMember.js';
+import Task from '../models/task.js';
+import Status from '../models/status.js';
+import Project from '../models/project.js';
 import Invite from '../models/invite.js';
+import mongoose from 'mongoose';
 
 async function getWorkspaces(req, res) {
     const userId = req.userId;
@@ -19,7 +23,7 @@ async function createWorkspace(req, res) {
     try {
         const workspace = await Workspace.create({ name, createdBy: userId });
         await WorkspaceMember.create({ workspace: workspace._id, user: userId, role: 'owner' });
-        res.status(201).json({ message: 'Workspace created successfully' });
+        res.status(201).json({ message: 'Workspace created successfully', workspace });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -28,9 +32,31 @@ async function createWorkspace(req, res) {
 async function deleteWorkspace(req, res) {
     const { workspaceId } = req.params;
     const userId = req.userId;
+    const session = await mongoose.startSession();
     try {
-        await Workspace.deleteOne({ _id: workspaceId, createdBy: userId });
+        await Project.find({ workspace: workspaceId }).then(async projects => {
+            for (const project of projects) {
+                await Task.deleteMany({ project: project._id }, { session });
+                await Status.deleteMany({ project: project._id }, { session });
+                await Project.deleteOne({ _id: project._id }, { session });
+            }
+        });
+        await WorkspaceMember.deleteMany({ workspace: workspaceId }, { session });
+        await Workspace.deleteOne({ _id: workspaceId, createdBy: userId }, { session });
         res.status(200).json({ message: 'Workspace deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    } finally {
+        await session.endSession();
+    }
+}
+
+async function updateWorkspace(req, res) {
+    const { workspaceId } = req.params;
+    const { name } = req.body;
+    try {
+        const workspace = await Workspace.findByIdAndUpdate(workspaceId, { name }, { returnDocument: 'after'});
+        res.json(workspace);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -80,4 +106,4 @@ async function joinWorkspace(req, res) {
     res.json({ message: 'Invite accepted successfully' });
 }
 
-export { getWorkspaces, createWorkspace, deleteWorkspace, leaveWorkspace, sendInvite, joinWorkspace };
+export { getWorkspaces, createWorkspace, deleteWorkspace, updateWorkspace, leaveWorkspace, sendInvite, joinWorkspace };
