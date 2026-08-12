@@ -8,18 +8,17 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from './ui/tooltip';
-import { useCurrentProject } from '@/hooks/useCurrentProject';
-import { useProjects } from '@/hooks/useProjects';
+import { useStatuses } from "@/hooks/useStatuses"
 import { DragDropProvider } from '@dnd-kit/react';
 import { useRef, useState, useEffect, useMemo } from 'react';
 import { move } from '@dnd-kit/helpers'
 import { generateKeyBetween } from 'fractional-indexing';
+import { AddStatusDialog } from './add-status-dialog';
 
 function Kanban() {
-    const { workspaceId, projectId } = useParams();
+    const { projectId } = useParams();
     const { data: tasks, updateTask } = useTasks(projectId);
-    const { updateStatus } = useProjects(workspaceId);
-    const project = useCurrentProject();
+    const { data: statuses, updateStatus } = useStatuses(projectId);
     const sourceParentRef = useRef(null);
 
     const isDragging = useRef(false);
@@ -27,17 +26,18 @@ function Kanban() {
 
     const grouped = useMemo(() => {
         const groups = {};
-        for (const status of project?.statuses ?? []) {
+        for (const status of statuses ?? []) {
             groups[status._id] = [];
         }
         for (const task of tasks ?? []) {
             groups[task.statusId]?.push(task);
         }
         return groups;
-    }, [tasks, project]);
+    }, [tasks, statuses]);
 
     const [ items, setItems ] = useState(grouped ?? []);
-    const [ columnOrder, setColumnOrder ] = useState(project?.statuses ?? []);
+    const [ columnOrder, setColumnOrder ] = useState(statuses ?? []);
+    const [ addStatusOpen, setAddStatusOpen ] = useState(false);
 
     useEffect(() => {
         if (grouped && !isDragging.current) {
@@ -46,10 +46,10 @@ function Kanban() {
     }, [grouped]);
 
     useEffect(() => {
-        if (project && !isDragging.current) {
-            setColumnOrder(project.statuses);
+        if (statuses && !isDragging.current) {
+            setColumnOrder(statuses);
         }
-    }, [project])
+    }, [statuses]);
 
     function handleDragStart(event) {
         isDragging.current = true;
@@ -102,15 +102,17 @@ function Kanban() {
         }
     }
 
+    if (!projectId) return null;
+
     return (
         <DragDropProvider onDragStart={handleDragStart} onDragEnd={handleDragEnd} onDragOver={handleDragOver}>
-            <div className="h-full flex overflow-x-auto gap-4 p-4">
+            <div className="h-full flex overflow-x-auto gap-2 p-4">
                 {columnOrder?.map((column, index) => (
-                    <Column key={column._id} statusId={column._id} index={index} status={column.name} tasks={items[column._id] ?? []}/>
+                    <Column key={column._id} status={column} index={index} tasks={items[column._id] ?? []}/>
                 ))}
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <Button className="bg-accent/60 p-1 rounded hover:bg-accent">
+                        <Button className="bg-accent/60 p-1 rounded hover:bg-accent" onClick={() => setAddStatusOpen(true)}>
                             <PlusIcon className="size-6 text-muted-foreground" />
                         </Button>
                     </TooltipTrigger>
@@ -118,6 +120,11 @@ function Kanban() {
                         <p>Add Column</p>
                     </TooltipContent>
                 </Tooltip>
+                <AddStatusDialog
+                    open={addStatusOpen}
+                    onOpenChange={setAddStatusOpen}
+                    order={columnOrder[columnOrder.length-1]?.order}
+                />
             </div>
         </DragDropProvider>
     )
