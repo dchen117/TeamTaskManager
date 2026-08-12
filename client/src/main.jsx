@@ -12,12 +12,12 @@ document.documentElement.classList.add("dark")
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <AuthProvider>
-      <TooltipProvider>
-        <QueryClientProvider client={queryClient}>
-          <App />
-        </QueryClientProvider>
-      </TooltipProvider>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <TooltipProvider>
+            <App />
+        </TooltipProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   </StrictMode>,
 )
