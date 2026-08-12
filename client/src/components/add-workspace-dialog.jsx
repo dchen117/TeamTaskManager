@@ -14,20 +14,33 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useState } from "react"
 import { useWorkspaces } from "@/hooks/useWorkspaces"
+import { useSwitchWorkspace } from "@/hooks/useSwitchWorkspace"
 
-export function AddWorkspaceDialog({children}) {
-  const [open, setOpen] = useState(false)
+export function AddWorkspaceDialog({children, open, onOpenChange, closeOnSubmit=true}) {
+  const [internalOpen, setInternalOpen] = useState(false)
   const { createWorkspace } = useWorkspaces()
+  const switchWorkspace = useSwitchWorkspace()
+  const isOpen = open ? open : internalOpen
+  const setOpen = (nextOpen) => {
+    if (!open) {
+      setInternalOpen(nextOpen)
+    }
+    onOpenChange?.(nextOpen)
+  } 
 
   async function handleSubmit(e) {
     e.preventDefault()
     const formData = new FormData(e.target)
     const data = Object.fromEntries(formData.entries())
-    createWorkspace(data)
-    setOpen(false)
+    createWorkspace(data, {
+      onSuccess: data => {
+        switchWorkspace(data.workspace._id)
+      }
+    })
+    setOpen(!closeOnSubmit)
   }
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={isOpen} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
