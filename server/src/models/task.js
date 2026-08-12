@@ -7,7 +7,7 @@ const taskSchema = new mongoose.Schema({
         required: true
     },
     description: String,
-    statusId: {type: mongoose.Schema.Types.String, ref: 'Project.statuses', required: true},
+    statusId: {type: mongoose.Schema.Types.ObjectId, ref: 'Status', required: true},
     dueDate: Date,
     assignedTo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     createdAt: { type: Date, default: Date.now },
