@@ -2,8 +2,9 @@
 
 import * as React from "react"
 
-import { NavMain } from "@/components/nav-main"
+// import { NavMain } from "@/components/nav-main"
 import { NavProjects } from "@/components/nav-projects"
+import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
 import {
@@ -171,12 +172,11 @@ export function AppSidebar({
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        {/* <TeamSwitcher teams={data.teams} /> */}
         <TeamSwitcher />
       </SidebarHeader>
       <SidebarContent>
-        {/* <NavMain items={data.navMain} /> */}
-        <NavProjects projects={data.projects} />
+        <NavProjects/>
+        <NavSecondary className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
