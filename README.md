@@ -5,16 +5,24 @@ A tool for task organization and team collaboration
 Teams collaborate on projects by creating tasks, assigning owners, tracking progress, and discussing updates.
 
 Users:
+- Owner
 - Admin
-- Team Member
-- Viewer (read-only)
+- Editor
+- Viewer
 
-Features:
-- Teams & projects
-- Tasks with status, priority, deadlines
-- User assignment
-- Comments & activity log
-- Authentication & authorization
+Features (In Progress):
+- [x] Workspaces & projects
+   - [ ] Sharing between members
+- [x] Tasks
+   - [x] Status
+   - [ ] Priority
+   - [ ] Deadlines
+- [x] Views
+   - [x] Kanban board
+   - [ ] List 
+- [ ] User assignment
+- [ ] Comments & activity log
+- [x] Authentication & authorization
 
 ## Architecture
 MERN Stack:
@@ -31,5 +39,5 @@ Express Server
 
 &emsp;↓
    
-MongoDB (Users, Teams, Tasks, Comments)
+MongoDB (User, Workspace, WorkspaceMember, Project, Status, Task)
 
