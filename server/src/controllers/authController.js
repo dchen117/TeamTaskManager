@@ -3,6 +3,11 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import path from 'path';
 import WorkspaceMember from '../models/workspaceMember.js';
+import Workspace from '../models/workspace.js';
+import Project from '../models/project.js'
+import Status from '../models/status.js';
+import Task from '../models/task.js'
+import mongoose from 'mongoose'
 
 /* TODO: Remove after deployment */
 import dotenv from "dotenv";
@@ -117,6 +122,34 @@ async function logout(req, res) { // requires authenticate middleware
   res.json({ message: 'Logged out successfully' });
 }
 
+// Currently deleteUser also deletes all workspaces owned by the user.
+// TODO: Only delete workspaces with no members left, otherwise transfer ownership
+async function deleteUser(req, res) {
+  const userId = req.userId;
+  const session = await mongoose.startSession();
+  try {
+    await Workspace.find({ createdBy: userId }).then(async workspaces => {
+      for (const workspace of workspaces) {
+        await Project.find({ workspace: workspace._id }).then(async projects => {
+          for (const project of projects) {
+            await Task.deleteMany({ project: project._id }, { session });
+            await Status.deleteMany({ project: project._id }, { session });
+            await Project.deleteOne({ _id: project._id }, { session });
+          }
+        });
+        await WorkspaceMember.deleteMany({ workspace: workspace._id }, { session });
+      }
+      await Workspace.deleteMany({ createdBy: userId }, { session });
+      await User.deleteOne({ _id: userId }, { session });
+    })
+      res.status(200).json({ message: 'User deleted successfully' });
+  } catch (error) {
+      res.status(500).json({ error: error.message });
+  } finally {
+      await session.endSession();
+  }
+}
+
 async function userInfo(req, res) { // requires authenticate middleware
   const user = await User.findById(req.userId);
   res.json({ displayName : user.displayName, username : user.username, email : user.email })
@@ -142,4 +175,4 @@ const ROLES = {
   owner: 4 // has full control, including managing admins and deleting workspace
 }
 
-export { login, register, logout, refresh, userInfo, authenticate, checkWorkspaceAccess, requireRole, ROLES };
+export { login, register, logout, refresh, deleteUser, userInfo, authenticate, checkWorkspaceAccess, requireRole, ROLES };
