@@ -51,6 +51,17 @@ function AuthProvider({ children }) {
     registerLogoutHandler(logout);
   }, [logout]);
 
+  async function deleteUser() {
+    try {
+      await api.delete('/auth/delete-user');
+    } catch (error) {
+      console.error('Error deleting user: ', error);
+    }
+    setUser(null);
+    setAccessToken(null);
+    setIsAuthenticated(false);
+  }
+
   async function register(displayname, username, email, password, confirmPassword) {
     if (password.length < 8) {
       const error = Error("Password must be at least 8 characters long");
@@ -96,7 +107,7 @@ function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, register, user }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, deleteUser, register, user }}>
       {children}
     </AuthContext.Provider>
   );
