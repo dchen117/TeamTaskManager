@@ -16,7 +16,7 @@ dotenv.config({ path: path.resolve(import.meta.dirname, "config/.env") });
 
 const app = express();
 const corsOptions = { // TODO: Configure CORS properly before deployment
-  origin: true,
+  origin: process.env.CLIENT_URL,
   credentials: true,
 };
 // app.options('*', cors(corsOptions));
@@ -24,20 +24,17 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-const port = 5000;
+const PORT = process.env.PORT || 5000;
 
 app.use("/api/auth", authRoute);
 app.use("/api/workspaces", workspaceRoute);
 app.use("/api/projects", projectRoute);
 app.use("/api/statuses", statusRoute);
 app.use("/api/tasks", taskRoute);
-app.get("/", (req, res) => {
-  res.send("Hello, World!");
-});
 
 (async () => {
   await mongoose.connect(process.env.MONGO_STRING_CONNECTION);
-  app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
   });
 })();
