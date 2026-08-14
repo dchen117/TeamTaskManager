@@ -20,10 +20,12 @@ export function NavSecondary({...props}) {
                     </WorkspaceSettingsSheet>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
-                    <SidebarMenuButton>
-                    <IconBrandGithub/>
-                    <span>Github</span>
-                    </SidebarMenuButton>
+                    <a href="https://github.com/dchen117/TeamTaskManager" target="_blank">
+                        <SidebarMenuButton>
+                        <IconBrandGithub/>
+                        <span>Github</span>
+                        </SidebarMenuButton>
+                    </a>
                 </SidebarMenuItem>
             </SidebarMenu>
         </SidebarGroup>
