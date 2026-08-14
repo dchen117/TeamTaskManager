@@ -39,5 +39,10 @@ Express Server
 
 &emsp;↓
    
-MongoDB (User, Workspace, WorkspaceMember, Project, Status, Task)
+MongoDB (Users, Workspaces, WorkspaceMembers, Projects, Statuses, Tasks)
+
+## Deployment
+Frontend hosted on Vercel: https://team-task-manager-xi-steel.vercel.app
+
+Backend hosted on Render: https://teamtaskmanager-uxyw.onrender.com
 
