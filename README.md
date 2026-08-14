@@ -46,3 +46,10 @@ Frontend hosted on Vercel: https://team-task-manager-xi-steel.vercel.app
 
 Backend hosted on Render: https://teamtaskmanager-uxyw.onrender.com
 
+Demo of Deployed App:
+
+
+https://github.com/user-attachments/assets/2fe8a707-37fe-4f09-a348-15ef29d33c65
+
+
+
