@@ -2,7 +2,7 @@ import axios from 'axios';
 import { getAccessToken, setAccessToken, notifyLogout } from './tokenService.js';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api', // TODO: Change baseURL when deploying
+  baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
 });
 
