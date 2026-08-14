@@ -28,31 +28,6 @@ export function useTasks(projectId) {
 
   const updateTaskMutation = useMutation({
     mutationFn: updateTask,
-    onMutate: async ({taskId, data}) => {
-      await queryClient.cancelQueries({
-        queryKey: ["tasks", projectId],
-      });
-      // store current tasks in case rollback is needed
-      const previousTasks = queryClient.getQueryData(["tasks", projectId]);
-      // Optimistically update task
-      queryClient.setQueryData(
-        ["tasks", projectId],
-        (oldTasks) => {
-          const updatedTasks = oldTasks?.map(task => task._id === taskId ? {...task, ...data} : task);
-          return updatedTasks;
-        }
-      );
-      return { previousTasks };
-    },
-
-    onError: (_error, _variables, context) => {
-      // Restore the tasks if deletion failed
-      queryClient.setQueryData(
-        ["tasks", projectId],
-        context?.previousTasks
-      );
-    },
-
     onSettled: () => {
       // Make sure cache matches server
       queryClient.invalidateQueries({
