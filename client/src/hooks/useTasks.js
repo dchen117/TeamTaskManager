@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getTasks, createTask, updateTask, deleteTask } from "../services/tasks";
 
-export function useTasks(projectId) {
+export function useTasks(workspaceId, projectId) {
   const queryClient = useQueryClient();
 
   // add an id field for dnd-kit's move helper
@@ -11,14 +11,14 @@ export function useTasks(projectId) {
   // READ
   const tasksQuery = useQuery({
     queryKey: ["tasks", projectId],
-    queryFn: () => getTasks(projectId),
+    queryFn: () => getTasks({workspaceId, projectId}),
     enabled: !!projectId,
     select: selectTasks
   })
 
   // WRITE
   const createTaskMutation = useMutation({
-    mutationFn: createTask,
+    mutationFn: (data) => createTask({workspaceId, projectId, data}),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["tasks", projectId]
@@ -27,7 +27,7 @@ export function useTasks(projectId) {
   });
 
   const updateTaskMutation = useMutation({
-    mutationFn: updateTask,
+    mutationFn: ({taskId, data}) => updateTask({workspaceId, taskId, data}),
     onSettled: () => {
       // Make sure cache matches server
       queryClient.invalidateQueries({
@@ -37,7 +37,7 @@ export function useTasks(projectId) {
   });
 
   const deleteTaskMutation = useMutation({
-    mutationFn: deleteTask,
+    mutationFn: (taskId) => deleteTask({workspaceId, taskId}),
     onMutate: async (taskId) => {
       await queryClient.cancelQueries({
         queryKey: ["tasks", projectId],

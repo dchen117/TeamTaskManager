@@ -29,18 +29,36 @@ async function createWorkspace(req, res) {
     }
 }
 
+// async function deleteWorkspace(req, res) {
+//     const { workspaceId } = req.params;
+//     const userId = req.userId;
+//     const session = await mongoose.startSession();
+//     try {
+//         await Project.find({ workspace: workspaceId }).then(async projects => {
+//             for (const project of projects) {
+//                 await Task.deleteMany({ project: project._id }, { session });
+//                 await Status.deleteMany({ project: project._id }, { session });
+//                 await Project.deleteOne({ _id: project._id }, { session });
+//             }
+//         });
+//         await WorkspaceMember.deleteMany({ workspace: workspaceId }, { session });
+//         await Workspace.deleteOne({ _id: workspaceId, createdBy: userId }, { session });
+//         res.status(200).json({ message: 'Workspace deleted successfully' });
+//     } catch (error) {
+//         res.status(500).json({ error: error.message });
+//     } finally {
+//         await session.endSession();
+//     }
+// }
+
 async function deleteWorkspace(req, res) {
     const { workspaceId } = req.params;
     const userId = req.userId;
     const session = await mongoose.startSession();
     try {
-        await Project.find({ workspace: workspaceId }).then(async projects => {
-            for (const project of projects) {
-                await Task.deleteMany({ project: project._id }, { session });
-                await Status.deleteMany({ project: project._id }, { session });
-                await Project.deleteOne({ _id: project._id }, { session });
-            }
-        });
+        await Task.deleteMany({ workspace: workspaceId }, { session });
+        await Status.deleteMany({ workspace: workspaceId }, { session });
+        await Project.deleteMany({ workspace: workspaceId }, { session });
         await WorkspaceMember.deleteMany({ workspace: workspaceId }, { session });
         await Workspace.deleteOne({ _id: workspaceId, createdBy: userId }, { session });
         res.status(200).json({ message: 'Workspace deleted successfully' });

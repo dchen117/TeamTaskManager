@@ -1,31 +1,31 @@
 import api from '../services/api.js';
 
-async function getTasks(projectId) {
+async function getTasks({ workspaceId, projectId }) {
   const res = await api.get(
-    `/projects/${projectId}/get-tasks`
+    `/workspaces/${workspaceId}/projects/${projectId}/get-tasks`
   );
   return res.data;
 }
 
-async function createTask({ projectId, data }) {
+async function createTask({ workspaceId, projectId, data }) {
   const res = await api.post(
-    `/projects/${projectId}/create-task`,
+    `/workspaces/${workspaceId}/projects/${projectId}/create-task`,
     data,
   );
   return res.data;
 }
 
-async function updateTask({ taskId, data }) {
+async function updateTask({ workspaceId, taskId, data }) {
   const res = await api.put(
-    `/tasks/${taskId}/update-task`,
+    `/workspaces/${workspaceId}/tasks/${taskId}/update-task`,
     data
   );
   return res.data;
 }
 
-async function deleteTask(taskId) {
+async function deleteTask({ workspaceId, taskId}) {
   const res = await api.delete(
-    `/tasks/${taskId}/delete-task`
+    `/workspaces/${workspaceId}/tasks/${taskId}/delete-task`
   )
   return res.data;
 }

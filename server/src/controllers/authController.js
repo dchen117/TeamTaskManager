@@ -131,13 +131,9 @@ async function deleteUser(req, res) {
   try {
     await Workspace.find({ createdBy: userId }).then(async workspaces => {
       for (const workspace of workspaces) {
-        await Project.find({ workspace: workspace._id }).then(async projects => {
-          for (const project of projects) {
-            await Task.deleteMany({ project: project._id }, { session });
-            await Status.deleteMany({ project: project._id }, { session });
-            await Project.deleteOne({ _id: project._id }, { session });
-          }
-        });
+        await Task.deleteMany({ workspace: workspace._id }, { session });
+        await Status.deleteMany({ workspace: workspace._id }, { session });
+        await Project.deleteMany({ workspace: workspace._id }, { session });
         await WorkspaceMember.deleteMany({ workspace: workspace._id }, { session });
       }
       await Workspace.deleteMany({ createdBy: userId }, { session });

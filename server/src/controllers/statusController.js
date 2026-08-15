@@ -11,9 +11,9 @@ function getStatuses(req, res) {
 }
 
 function createStatus(req, res) {
-    const { projectId } = req.params;
+    const { workspaceId, projectId } = req.params;
     const { name, order } = req.body;
-    Status.create({ project: projectId, name, order})
+    Status.create({ workspace: workspaceId, project: projectId, name, order})
         .then(status => res.json(status))
         .catch(error => res.status(500).json({ error: error.message }));
 }

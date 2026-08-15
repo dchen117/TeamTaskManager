@@ -23,9 +23,9 @@ async function createProject(req, res) {
         await session.withTransaction(async () => { // Project is created with default statuses atomically
             [project] = await Project.create([{ name, description, workspace: workspaceId, createdBy: userId }], { session });
             const statuses = [
-                { project: project._id, name: "To Do", order: 'a0' },
-                { project: project._id, name: "In Progress", order: 'a1' },
-                { project: project._id, name: "Done", order: 'a2' }
+                { workspace: workspaceId, project: project._id, name: "To Do", order: 'a0' },
+                { workspace: workspaceId, project: project._id, name: "In Progress", order: 'a1' },
+                { workspace: workspaceId, project: project._id, name: "Done", order: 'a2' }
             ]
             await Status.insertMany(statuses, { session })
         })

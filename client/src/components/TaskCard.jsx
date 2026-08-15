@@ -28,8 +28,8 @@ function TaskCard({ task, statusId, index }) {
     });
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [editTaskOpen, setEditTaskOpen] = useState(false);
-    const { projectId } = useParams();
-    const { deleteTask } = useTasks(projectId);
+    const { workspaceId, projectId } = useParams();
+    const { deleteTask } = useTasks(workspaceId, projectId);
 
     function handleDelete(e) {
         e.preventDefault()

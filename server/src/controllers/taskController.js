@@ -10,11 +10,11 @@ function getTasks(req, res) {
 
 function createTask(req, res) {
     const { title, description, statusId, order } = req.body;
-    const { projectId } = req.params;
+    const { workspaceId, projectId } = req.params;
     if (!title || !projectId || !statusId || !order) {
         return res.status(400).json({ error: 'Title, projectId, statusId, and order are required' });
     }
-    Task.create({ title, description, statusId, project: projectId, order })
+    Task.create({ title, description, statusId, workspace: workspaceId, project: projectId, order })
         .then(task => res.status(201).json(task))
         .catch(error => res.status(500).json({ error: error.message }));
 }

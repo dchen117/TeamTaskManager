@@ -3,7 +3,7 @@ import { createProject, deleteProject, updateProject } from '../controllers/proj
 import { authenticate, ROLES, requireRole } from '../controllers/authController.js';
 import { createTask, getTasks } from '../controllers/taskController.js';
 import { getStatuses, createStatus } from '../controllers/statusController.js'
-const router = express.Router();
+const router = express.Router({mergeParams: true});
 
 router.use(authenticate); // Protect all project routes
 // router.delete('/:projectId/delete-project', authenticate, requireRole(ROLES.ADMIN), deleteProject);

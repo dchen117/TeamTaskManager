@@ -1,31 +1,31 @@
 import api from '../services/api.js';
 
-async function getStatuses(projectId) {
+async function getStatuses({workspaceId, projectId}) {
   const res = await api.get(
-    `/projects/${projectId}/get-statuses`
+    `/workspaces/${workspaceId}/projects/${projectId}/get-statuses`
   );
   return res.data;
 }
 
-async function createStatus({ projectId, data }) {
+async function createStatus({ workspaceId, projectId, data }) {
   const res = await api.post(
-    `/projects/${projectId}/create-status`,
+    `/workspaces/${workspaceId}/projects/${projectId}/create-status`,
     data,
   );
   return res.data;
 }
 
-async function updateStatus({ statusId, data }) {
+async function updateStatus({ workspaceId, statusId, data }) {
   const res = await api.put(
-    `/statuses/${statusId}/update-status`,
+    `/workspaces/${workspaceId}/statuses/${statusId}/update-status`,
     data
   );
   return res.data;
 }
 
-async function deleteStatus({ statusId, data = {} }) {
+async function deleteStatus({ workspaceId, statusId, data = {} }) {
   const res = await api.delete(
-    `/statuses/${statusId}/delete-status`,
+    `/workspaces/${workspaceId}/statuses/${statusId}/delete-status`,
     { data }
   )
   return res.data;

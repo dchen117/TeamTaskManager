@@ -18,8 +18,8 @@ import { useParams } from "react-router-dom"
 import { useState } from "react"
 
 export function AddStatusDialog({children, open, onOpenChange, order, status}) {
-  const { projectId } = useParams()
-  const { createStatus, updateStatus } = useStatuses(projectId)
+  const { workspaceId, projectId } = useParams()
+  const { createStatus, updateStatus } = useStatuses(workspaceId, projectId)
   const [ internalOpen, setInternalOpen ] = useState(false)
   const isOpen = open ? open : internalOpen
   const setOpen = (nextOpen) => {
@@ -34,7 +34,7 @@ export function AddStatusDialog({children, open, onOpenChange, order, status}) {
     const formData = new FormData(e.target)
     const data = Object.fromEntries(formData.entries())
     data.order = generateKeyBetween(order ?? null, null);
-    createStatus({ projectId, data })
+    createStatus(data)
     setOpen(false)
   }
 

@@ -19,8 +19,8 @@ import { useParams } from "react-router-dom"
 import { generateKeyBetween } from "fractional-indexing"
 
 export function AddTaskDialog({children, open, onOpenChange, statusId, order}) {
-  const { projectId } = useParams()
-  const { createTask } = useTasks(projectId)
+  const { workspaceId, projectId } = useParams()
+  const { createTask } = useTasks(workspaceId, projectId)
   const [ internalOpen, setInternalOpen ] = useState(false)
   const isOpen = open ? open : internalOpen
   const setOpen = (nextOpen) => {
@@ -36,7 +36,7 @@ export function AddTaskDialog({children, open, onOpenChange, statusId, order}) {
     const data = Object.fromEntries(formData.entries())
     data.statusId = statusId
     data.order = generateKeyBetween(null, order ?? null);
-    createTask({ projectId, data })
+    createTask(data)
     setOpen(false)
   }
   

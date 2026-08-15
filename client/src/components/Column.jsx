@@ -40,8 +40,8 @@ function Column({ status, index, tasks }) {
   const [ deleteStatusDialogOpen, setDeleteStatusDialogOpen ] = useState(false);
   const [ deleteItemsDialogOpen, setDeleteItemsDialogOpen ] = useState(false);
   const [ editStatusDialogOpen, setEditStatusDialogOpen ] = useState(false);
-  const { projectId } = useParams();
-  const { deleteStatus } = useStatuses(projectId);
+  const { workspaceId, projectId } = useParams();
+  const { deleteStatus } = useStatuses(workspaceId, projectId);
   const style = isDragging ? { outline: '2px solid #3b82f6' } : {};
 
   function handleDeleteStatus(e) {

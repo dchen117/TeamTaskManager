@@ -24,7 +24,7 @@ export function useProjects(workspaceId) {
 
   // WRITE
   const createProjectMutation = useMutation({
-    mutationFn: createProject,
+    mutationFn: (data) => createProject({workspaceId, data}),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ["projects", workspaceId]
@@ -33,7 +33,7 @@ export function useProjects(workspaceId) {
   });
 
   const updateProjectMutation = useMutation({
-    mutationFn: updateProject,
+    mutationFn: ({projectId, data}) => updateProject({workspaceId, projectId, data}),
     onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: ["projects", workspaceId],
@@ -42,7 +42,7 @@ export function useProjects(workspaceId) {
   });
 
   const deleteProjectMutation = useMutation({
-    mutationFn: deleteProject,
+    mutationFn: (projectId) => deleteProject({workspaceId, projectId}),
     onSettled: () => {
       // Make sure cache matches server
       queryClient.invalidateQueries({

@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getStatuses, createStatus, updateStatus, deleteStatus } from "../services/statuses";
 
-export function useStatuses(projectId) {
+export function useStatuses(workspaceId, projectId) {
   const queryClient = useQueryClient();
 
   // add an id field for dnd-kit's move helper
@@ -11,14 +11,14 @@ export function useStatuses(projectId) {
   // READ
   const statusesQuery = useQuery({
     queryKey: ["statuses", projectId],
-    queryFn: () => getStatuses(projectId),
+    queryFn: () => getStatuses({workspaceId, projectId}),
     enabled: !!projectId,
     select: selectStatuses
   })
 
   // WRITE
   const createStatusMutation = useMutation({
-    mutationFn: createStatus,
+    mutationFn: (data) => createStatus({workspaceId, projectId, data}),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["statuses", projectId]
@@ -27,7 +27,7 @@ export function useStatuses(projectId) {
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: updateStatus,
+    mutationFn: ({statusId, data}) => updateStatus({workspaceId, statusId, data}),
     onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: ["statuses", projectId],
@@ -36,7 +36,7 @@ export function useStatuses(projectId) {
   });
 
   const deleteStatusMutation = useMutation({
-    mutationFn: deleteStatus,
+    mutationFn: ({statusId, data = {}}) => deleteStatus({workspaceId, statusId, data}),
     onMutate: async ({ statusId, data = {} }) => {
       const { deleteItemsOnly = false } = data;
       await queryClient.cancelQueries({

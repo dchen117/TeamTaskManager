@@ -34,7 +34,7 @@ export function AddProjectDialog({children, open, onOpenChange, project}) {
     e.preventDefault()
     const formData = new FormData(e.target)
     const data = Object.fromEntries(formData.entries())
-    createProject({ workspaceId, data }, {
+    createProject(data, {
       onSuccess: data => {
         navigate(`/home/${workspaceId}/${data.project._id}`)
       }

@@ -21,10 +21,10 @@ async function createProject({ workspaceId, data }) {
   }
 }
 
-async function deleteProject(projectId) {
+async function deleteProject({workspaceId, projectId}) {
   try {
     const res = await api.delete(
-      `/projects/${projectId}/delete-project`
+      `/workspaces/${workspaceId}/projects/${projectId}/delete-project`
     );
     return res.data;
   } catch (error) {
@@ -32,10 +32,10 @@ async function deleteProject(projectId) {
   }
 }
 
-async function updateProject({ projectId, data}) {
+async function updateProject({ workspaceId, projectId, data}) {
   try {
     const res = await api.put(
-      `/projects/${projectId}/update-project`,
+      `workspaces/${workspaceId}/projects/${projectId}/update-project`,
       data
     );
     return res.data;

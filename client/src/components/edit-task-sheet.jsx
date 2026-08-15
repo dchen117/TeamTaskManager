@@ -16,8 +16,8 @@ import { useTasks } from "@/hooks/useTasks"
 import { useParams } from "react-router-dom"
 
 export function EditTaskSheet({ open, onOpenChange, task }) {
-  const { projectId } = useParams();
-  const { updateTask } = useTasks(projectId);
+  const { workspaceId, projectId } = useParams();
+  const { updateTask } = useTasks(workspaceId, projectId);
   async function handleSubmit(e) {
     e.preventDefault();
     const formData = new FormData(e.target);

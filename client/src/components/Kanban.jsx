@@ -16,9 +16,9 @@ import { generateKeyBetween } from 'fractional-indexing';
 import { AddStatusDialog } from './add-status-dialog';
 
 function Kanban() {
-    const { projectId } = useParams();
-    const { data: tasks, updateTask } = useTasks(projectId);
-    const { data: statuses, updateStatus } = useStatuses(projectId);
+    const { workspaceId, projectId } = useParams();
+    const { data: tasks, updateTask } = useTasks(workspaceId, projectId);
+    const { data: statuses, updateStatus } = useStatuses(workspaceId, projectId);
     const sourceParentRef = useRef(null);
 
     const isDragging = useRef(false);

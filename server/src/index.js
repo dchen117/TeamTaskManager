@@ -28,9 +28,9 @@ const PORT = process.env.PORT || 5000;
 
 app.use("/api/auth", authRoute);
 app.use("/api/workspaces", workspaceRoute);
-app.use("/api/projects", projectRoute);
-app.use("/api/statuses", statusRoute);
-app.use("/api/tasks", taskRoute);
+// app.use("/api/projects", projectRoute);
+// app.use("/api/statuses", statusRoute);
+// app.use("/api/tasks", taskRoute);
 
 (async () => {
   await mongoose.connect(process.env.MONGO_STRING_CONNECTION);
