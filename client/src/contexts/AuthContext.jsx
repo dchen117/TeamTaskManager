@@ -20,7 +20,16 @@ function AuthProvider({ children }) {
       console.error(error.message);
     }
   }
-  
+
+  async function updateUser(data) {
+    try {
+      const res = await api.put('/auth/update-user', data);
+      setUser(res.data);
+    } catch (error) {
+      console.error(error.message);
+    }
+  }
+
   async function login(email, password) {
     try {
       const res = await api.post('/auth/login', { email, password });
@@ -107,7 +116,7 @@ function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, deleteUser, register, user }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, updateUser, deleteUser, register, user }}>
       {children}
     </AuthContext.Provider>
   );

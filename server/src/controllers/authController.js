@@ -39,7 +39,8 @@ function refresh(req, res) {
         }
       }
       res.status(401).json({ error: 'Invalid refresh token' });
-    });
+    }
+  );
 }
 
 function authenticate(req, res, next) { // Middleware to authenticate access tokens
@@ -152,7 +153,13 @@ async function deleteUser(req, res) {
 
 async function userInfo(req, res) { // requires authenticate middleware
   const user = await User.findById(req.userId);
-  res.json({ displayName : user.displayName, username : user.username, email : user.email })
+  res.json(user);
+}
+
+async function updateUser(req, res) {
+  const { displayName } = req.body;
+  const user = await User.findByIdAndUpdate(req.userId, { displayName }, { returnDocument: 'after' });
+  res.json(user);
 }
 
 function requireRole(Role) {
@@ -175,4 +182,4 @@ const ROLES = {
   owner: 4 // has full control, including managing admins and deleting workspace
 }
 
-export { login, register, logout, refresh, deleteUser, userInfo, authenticate, checkWorkspaceAccess, requireRole, ROLES };
+export { login, register, logout, refresh, deleteUser, updateUser, userInfo, authenticate, checkWorkspaceAccess, requireRole, ROLES };

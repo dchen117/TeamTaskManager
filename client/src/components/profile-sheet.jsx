@@ -19,7 +19,7 @@ import { AuthContext } from "@/contexts/AuthContext";
 export function ProfileSheet({children, open, onOpenChange}) {
   const [deleteUserDialogOpen, setDeleteUserDialogOpen] = useState(false);
   const [editName, setEditName] = useState(false);
-  const { user, deleteUser } = useContext(AuthContext);
+  const { user, updateUser, deleteUser } = useContext(AuthContext);
   const [displayName, setDisplayName] = useState(user.displayName);
   const [deletingUser, setDeletingUser] = useState(false);
   const [ internalOpen, setInternalOpen ] = useState(false)
@@ -33,11 +33,11 @@ export function ProfileSheet({children, open, onOpenChange}) {
 
   function handleSubmit(event) {
     event.preventDefault()
-    // const formData = new FormData(event.target)
+    const formData = new FormData(event.target)
     const button = event.nativeEvent.submitter
     if (button.value === "saveName") {
-        // TODO: update display name
-    //   updateUser({name: formData.get("display-name")})
+      console.log(formData.get("display-name"))
+      updateUser({displayName: formData.get("display-name")})
       setEditName(false);
     }
   }
